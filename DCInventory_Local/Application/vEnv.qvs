@@ -1,0 +1,14 @@
+//Set Environment specific variables.
+switch vEnvironment
+case 'LOCAL'
+set vSource_Env = 'dev';
+case 'DEV'
+set vSource_Env = 'dev';
+case 'QA'
+set vSource_Env = 'qa';
+case 'PROD'
+set vSource_Env = 'prod';
+default
+exit script;
+end switch
+//end of Set Environment specific variables.

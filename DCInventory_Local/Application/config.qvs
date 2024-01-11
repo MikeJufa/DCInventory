@@ -1,0 +1,6 @@
+//External Configuration script for DCInventory.QVW
+//Mike Zhu Jan. 2019
+//$(include = config.qvs);
+//Set Environment to 'DEV' or 'QA' or 'PROD'.
+
+SET vEnvironment = 'DEV';

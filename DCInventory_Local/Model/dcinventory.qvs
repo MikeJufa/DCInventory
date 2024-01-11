@@ -1,0 +1,81 @@
+﻿///$tab Main
+SET ThousandSep=',';
+SET DecimalSep='.';
+SET MoneyThousandSep=',';
+SET MoneyDecimalSep='.';
+SET MoneyFormat='$#,##0.00;($#,##0.00)';
+SET TimeFormat='h:mm:ss TT';
+SET DateFormat='M/D/YYYY';
+SET TimestampFormat='M/D/YYYY h:mm:ss[.fff] TT';
+SET FirstWeekDay=6;
+SET BrokenWeeks=1;
+SET ReferenceDay=0;
+SET FirstMonthOfYear=1;
+SET CollationLocale='en-US';
+SET MonthNames='Jan;Feb;Mar;Apr;May;Jun;Jul;Aug;Sep;Oct;Nov;Dec';
+SET LongMonthNames='January;February;March;April;May;June;July;August;September;October;November;December';
+SET DayNames='Mon;Tue;Wed;Thu;Fri;Sat;Sun';
+SET LongDayNames='Monday;Tuesday;Wednesday;Thursday;Friday;Saturday;Sunday';
+
+SET Version = 'Version 1.0';
+
+//Set Environment specific variable.
+//Load environment specific variable from external script.
+$(include=config.qvs);
+$(include=vEnv.qvs);
+
+//Set Target location and file name.
+LET vTgtPath = '..\Data\';
+
+TRACE;
+TRACE Loading Select Peirod Inline Table;
+TRACE ==================================;
+
+SelectPeriod:
+LOAD * Inline
+[
+StartDate; StopDate; Select Period
+num(floor(today()-8)); num(floor(today())); Rolling 7d
+num(floor(today()-15)); num(floor(today())); Rolling 14d
+num(floor(today()-31)); num(floor(today())); Rolling 30d
+num(floor(today()-181)); num(floor(today())); Rolling 6m
+num(floor(WeekStart(Today()))); num(floor(WeekEnd(Today()))); Current Week
+num(floor(WeekStart(Today()-7))); num(floor(WeekEnd(Today()-7))); Previous Week
+num(floor(monthstart(addmonths(today(),-1)))); num(floor(monthend(addmonths(today(),-1)))); Previous Month
+num(floor(quarterstart(today(),-1))); num(floor(quarterend(today(),-1))); Previous Quarter
+num(floor(yearstart(today(),-1))); num(floor(yearend(today(),-1))); Previous Year
+num(floor(yearstart(today()))); num(floor(today())); Current YTD
+num(floor(monthstart(addmonths(today(),-13)))); num(floor(today(),-1)); Previous 13m
+num(floor(monthstart(addmonths(today(),-24)))); num(floor(today(),-1)); Previous 2 yrs
+num(floor(monthstart(addmonths(today(),-36)))); num(floor(today(),-1)); Previous 3 yrs
+num(floor(monthstart(addmonths(today(),-48)))); num(floor(today(),-1)); Previous 4 yrs
+num(floor(monthstart(addmonths(today(),-60)))); num(floor(today(),-1)); Previous 5 yrs
+](delimiter is ';')
+;
+
+LET vNumMin = 1;
+LET vNumMax = 10000;
+
+Data:
+LOAD
+	*
+	,Year(Field_Date) as Field_Year
+	,Month(Field_Date) as Field_Month
+	,date(MonthStart(Field_Date),'MMM-YY') as Field_YearMonth
+;
+LOAD
+	*
+	,date(Field7) as Field_Date
+	,date(Field7, 'MMM-D-YY') as Field_Date2
+;
+LOAD
+	 $(vNumMin) + IterNo()-1 as Field1
+	,num(Rand()*10, '#,##0.00') as Field2
+	,num(Rand()*100, '#,##0.00') as Field3
+	,num(Rand()*1000, '#,##0.00') as Field4
+	,num(Rand()*10000, '#,##0.00') as Field5
+	,num(today()-Rand()*365*20, '#,##0') as Field7
+AutoGenerate 1
+While $(vNumMin)+IterNo()-1 <= $(vNumMax)
+;
+	
